@@ -95,9 +95,8 @@ namespace Win32_Content_Prep_Tool_GUI
                 arguments += " -q";
             }
 
-            string intuneWinAppUtilPath = "IntuneWinAppUtil.exe";
+            string intuneWinAppUtilPath = Path.Combine(Path.GetTempPath(), "IntuneWinAppUtil.exe");
 
-            // Verify if IntuneWinAppUtil.exe exists alongside the application.
             if (!File.Exists(intuneWinAppUtilPath))
             {
                 // Open a message box to to choose whether to download the tool from GitHub or to select the path to the tool if it is already downloaded.
@@ -124,18 +123,11 @@ namespace Win32_Content_Prep_Tool_GUI
                 }
                 else
                 {
-                    // Download the IntuneWinAppUtil.exe in temp folder
-                    intuneWinAppUtilPath = Path.Combine(Path.GetTempPath(), "IntuneWinAppUtil.exe");
-                    if (!File.Exists(intuneWinAppUtilPath))
-                    {
-                        using HttpClient client = new();
-                        var response = await client.GetAsync("https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool/raw/refs/heads/master/IntuneWinAppUtil.exe");
-                        response.EnsureSuccessStatusCode();
-                        using var fs = new FileStream(intuneWinAppUtilPath, FileMode.Create, FileAccess.Write, FileShare.None);
-                        await response.Content.CopyToAsync(fs);
-                    }
-
-                    intuneWinAppUtilPath = Path.Combine(Path.GetTempPath(), "IntuneWinAppUtil.exe");
+                    using HttpClient client = new();
+                    var response = await client.GetAsync("https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool/raw/refs/heads/master/IntuneWinAppUtil.exe");
+                    response.EnsureSuccessStatusCode();
+                    using var fs = new FileStream(intuneWinAppUtilPath, FileMode.Create, FileAccess.Write, FileShare.None);
+                    await response.Content.CopyToAsync(fs);
                 }
             }
 
@@ -154,6 +146,12 @@ namespace Win32_Content_Prep_Tool_GUI
             {
                 if (checkBox_verbose.Checked)
                 {
+                    // check if produced file already exist
+                    if (File.Exists(Path.Combine(outputFolderPath, setupFile.Replace(".exe", ".intunewin"))))
+                    {
+                        File.Delete(Path.Combine(outputFolderPath, setupFile.Replace(".exe", ".intunewin")));
+                    }
+
                     VerboseForm verboseForm = new();
                     verboseForm.Show();
                     process.OutputDataReceived += (s, ea) =>
@@ -200,6 +198,18 @@ namespace Win32_Content_Prep_Tool_GUI
 
             Clipboard.SetText(commandLine);
             MessageBox.Show("Command line copied to clipboard.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void LinkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            // Open the link in the default browser
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://github.com/Miiraak/Win32-Content-Prep-Tool-GUI",
+                UseShellExecute = true
+            });
+
+
         }
     }
 }

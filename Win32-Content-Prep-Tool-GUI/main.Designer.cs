@@ -41,6 +41,7 @@
             buttonOutputFolder = new Button();
             button_copy_args = new Button();
             checkBox_verbose = new CheckBox();
+            linkLabel1 = new LinkLabel();
             SuspendLayout();
             // 
             // button_select_file
@@ -73,7 +74,7 @@
             // 
             // button_convert
             // 
-            button_convert.Location = new Point(292, 210);
+            button_convert.Location = new Point(292, 218);
             button_convert.Name = "button_convert";
             button_convert.Size = new Size(177, 29);
             button_convert.TabIndex = 4;
@@ -152,7 +153,7 @@
             // 
             // button_copy_args
             // 
-            button_copy_args.Location = new Point(343, 175);
+            button_copy_args.Location = new Point(343, 183);
             button_copy_args.Name = "button_copy_args";
             button_copy_args.Size = new Size(126, 29);
             button_copy_args.TabIndex = 14;
@@ -163,19 +164,33 @@
             // checkBox_verbose
             // 
             checkBox_verbose.AutoSize = true;
-            checkBox_verbose.Location = new Point(12, 210);
+            checkBox_verbose.Location = new Point(12, 201);
             checkBox_verbose.Name = "checkBox_verbose";
             checkBox_verbose.Size = new Size(84, 24);
             checkBox_verbose.TabIndex = 15;
             checkBox_verbose.Text = "Verbose";
             checkBox_verbose.UseVisualStyleBackColor = true;
             // 
+            // linkLabel1
+            // 
+            linkLabel1.AutoSize = true;
+            linkLabel1.Font = new Font("Segoe UI", 7.8F, FontStyle.Italic, GraphicsUnit.Point, 0);
+            linkLabel1.LinkColor = Color.Gray;
+            linkLabel1.Location = new Point(12, 233);
+            linkLabel1.Name = "linkLabel1";
+            linkLabel1.Size = new Size(158, 17);
+            linkLabel1.TabIndex = 16;
+            linkLabel1.TabStop = true;
+            linkLabel1.Text = "Copyright (c) 2026 Miiraak";
+            linkLabel1.LinkClicked += LinkLabel1_LinkClicked;
+            // 
             // Main
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            ClientSize = new Size(483, 251);
+            ClientSize = new Size(483, 259);
+            Controls.Add(linkLabel1);
             Controls.Add(checkBox_verbose);
             Controls.Add(button_copy_args);
             Controls.Add(label_outputfolder);
@@ -212,5 +227,6 @@
         private Button buttonOutputFolder;
         private Button button_copy_args;
         private CheckBox checkBox_verbose;
+        private LinkLabel linkLabel1;
     }
 }
