@@ -173,16 +173,23 @@ namespace Win32_Content_Prep_Tool_GUI
 
             // Hash check for IntuneWinAppUtil.exe to ensure it is the expected version and has not been tampered with
             string expectedHash = "C1BA45B5CB939E84AF064BB7FF4B38FB3DFE33C8DC1078FD9B157672EAE671F6";
-            using (var sha256 = System.Security.Cryptography.SHA256.Create())
+            try
             {
-                using var stream = File.OpenRead(intuneWinAppUtilPath);
-                var hashBytes = sha256.ComputeHash(stream);
-                var actualHash = Convert.ToHexString(hashBytes).ToUpperInvariant();
-                if (actualHash != expectedHash)
+                using (var sha256 = System.Security.Cryptography.SHA256.Create())
                 {
-                    MessageBox.Show("The downloaded IntuneWinAppUtil.exe file is corrupted, has been tampered with or is not the expected version. Please download it manually from the GitHub repository.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    using var stream = File.OpenRead(intuneWinAppUtilPath);
+                    var hashBytes = sha256.ComputeHash(stream);
+                    var actualHash = Convert.ToHexString(hashBytes).ToUpperInvariant();
+                    if (actualHash != expectedHash)
+                    {
+                        MessageBox.Show("The downloaded IntuneWinAppUtil.exe file is corrupted, has been tampered with or is not the expected version. Please download it manually from the GitHub repository.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
                 }
+            } catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to verify the integrity of IntuneWinAppUtil.exe: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
 
             ProcessStartInfo startInfo = new()
