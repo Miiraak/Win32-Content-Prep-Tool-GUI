@@ -175,7 +175,7 @@
             // 
             linkLabel_repo.AutoSize = true;
             linkLabel_repo.Font = new Font("Segoe UI", 7.8F, FontStyle.Italic, GraphicsUnit.Point, 0);
-            linkLabel_repo.LinkColor = Color.Gray;
+            linkLabel_repo.LinkColor = Color.DimGray;
             linkLabel_repo.Location = new Point(12, 233);
             linkLabel_repo.Name = "linkLabel_repo";
             linkLabel_repo.Size = new Size(158, 17);

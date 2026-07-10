@@ -79,9 +79,7 @@ namespace Win32_Content_Prep_Tool_GUI
                 textBox_catalog_folder.Enabled = true;
                 label_catalog.Enabled = true;
                 button_select_catalog.Enabled = true;
-            }
-            else
-            {
+            } else {
                 textBox_catalog_folder.Enabled = false;
                 label_catalog.Enabled = false;
                 button_select_catalog.Enabled = false;
@@ -116,9 +114,7 @@ namespace Win32_Content_Prep_Tool_GUI
             }
 
             if (!checkBox_verbose.Checked)
-            {
                 arguments += " -q";
-            }
 
             string intuneWinAppUtilPath = Path.Combine(Path.GetTempPath(), "Win32-Content-Prep-Tool-GUI", "IntuneWinAppUtil.exe");
 
@@ -141,6 +137,17 @@ namespace Win32_Content_Prep_Tool_GUI
                         }
                         catch (Exception ex) {
                             MessageBox.Show($"Failed to download IntuneWinAppUtil.exe: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            if (File.Exists(intuneWinAppUtilPath))
+                            {
+                                try
+                                {
+                                    File.Delete(intuneWinAppUtilPath);
+                                }
+                                catch (Exception deleteEx)
+                                {
+                                    MessageBox.Show($"Failed to delete the corrupted IntuneWinAppUtil.exe file: {deleteEx.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                }
+                            }
                             return;
                         }
                     } 
@@ -161,11 +168,20 @@ namespace Win32_Content_Prep_Tool_GUI
                     catch (Exception ex)
                     {
                         MessageBox.Show($"Failed to download IntuneWinAppUtil.exe: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        if (File.Exists(intuneWinAppUtilPath))
+                        {
+                            try
+                            {
+                                File.Delete(intuneWinAppUtilPath);
+                            }
+                            catch (Exception deleteEx)
+                            {
+                                MessageBox.Show($"Failed to delete the corrupted IntuneWinAppUtil.exe file: {deleteEx.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                        }
                         return;
                     }
-                }
-                else
-                {
+                } else {
                     MessageBox.Show("IntuneWinAppUtil.exe is required for the conversion process. Please download it manually from the GitHub repository.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); 
                     return;
                 }
@@ -183,12 +199,29 @@ namespace Win32_Content_Prep_Tool_GUI
                     if (actualHash != expectedHash)
                     {
                         MessageBox.Show("The downloaded IntuneWinAppUtil.exe file is corrupted, has been tampered with or is not the expected version. Please download it manually from the GitHub repository.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        try
+                        {
+                            File.Delete(intuneWinAppUtilPath);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Failed to delete the corrupted IntuneWinAppUtil.exe file: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
                         return;
                     }
                 }
-            } catch (Exception ex)
+            } 
+            catch (Exception ex)
             {
                 MessageBox.Show($"Failed to verify the integrity of IntuneWinAppUtil.exe: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                try
+                {
+                    File.Delete(intuneWinAppUtilPath);
+                }
+                catch (Exception deleteEx)
+                {
+                    MessageBox.Show($"Failed to delete the corrupted IntuneWinAppUtil.exe file: {deleteEx.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
                 return;
             }
 
@@ -210,9 +243,7 @@ namespace Win32_Content_Prep_Tool_GUI
                     try
                     {
                         if (File.Exists(outputFilePath))
-                        {
                             File.Delete(outputFilePath);
-                        }
                     }
                     catch (Exception ex)
                     {
@@ -225,16 +256,12 @@ namespace Win32_Content_Prep_Tool_GUI
                     process.OutputDataReceived += (s, ea) =>
                     {
                         if (ea.Data != null)
-                        {
                             verboseForm.AppendText(ea.Data);
-                        }
                     };
                     process.ErrorDataReceived += (s, ea) =>
                     {
                         if (ea.Data != null)
-                        {
                             verboseForm.AppendText(ea.Data);
-                        }
                     };
                 }
                 process.Start();
@@ -260,14 +287,10 @@ namespace Win32_Content_Prep_Tool_GUI
             string commandLine = $"IntuneWinAppUtil.exe -c \"{sourceFolder}\" -s \"{setupFile}\" -o \"{outputFolderPath}\"";
 
             if (checkBox_bundeled_catalog.Checked && !string.IsNullOrEmpty(textBox_catalog_folder.Text))
-            {
                 commandLine += $" -a \"{textBox_catalog_folder.Text}\"";
-            }
 
             if (!checkBox_verbose.Checked)
-            {
                 commandLine += " -q";
-            }
 
             Clipboard.SetText(commandLine);
             MessageBox.Show("Command line copied to clipboard.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
