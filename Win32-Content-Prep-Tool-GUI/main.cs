@@ -97,41 +97,32 @@ namespace Win32_Content_Prep_Tool_GUI
 
             string intuneWinAppUtilPath = Path.Combine(Path.GetTempPath(), "IntuneWinAppUtil.exe");
 
-            if (!File.Exists(intuneWinAppUtilPath))
+            // To avoid downloading the tool every time, check if it is already downloaded in the application directory.
+            // But if it is not found or intuneWinAppUtil.exe is older than 7 days, ask to download the latest version from GitHub.
+            if (File.Exists(intuneWinAppUtilPath))
             {
-                // Open a message box to to choose whether to download the tool from GitHub or to select the path to the tool if it is already downloaded.
-                DialogResult result = MessageBox.Show("IntuneWinAppUtil.exe not found. Do you want to download it from GitHub?", "Download Tool", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                if (result == DialogResult.No)
+                DateTime lastWriteTime = File.GetLastWriteTime(intuneWinAppUtilPath);
+                if ((DateTime.Now - lastWriteTime).TotalDays > 1)
                 {
-                    OpenFileDialog openFileDialog = new()
+                    DialogResult result = MessageBox.Show("IntuneWinAppUtil.exe is older than 1 day. Do you want to download the latest version from GitHub?", "Download Tool", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    if (result == DialogResult.Yes)
                     {
-                        Filter = "Executable files (*.exe)|*.exe",
-                        Title = "Select IntuneWinAppUtil.exe"
-                    };
-                    if (openFileDialog.ShowDialog() == DialogResult.OK)
-                    {
-                        // Check if the selected file is IntuneWinAppUtil.exe
-                        if (Path.GetFileName(openFileDialog.FileName) != "IntuneWinAppUtil.exe")
-                        {
-                            MessageBox.Show("The selected file is not IntuneWinAppUtil.exe. Please select the correct file.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            return;
-                        }
-
-                        intuneWinAppUtilPath = openFileDialog.FileName;
-                    }
-                    else { return; }
+                        using HttpClient client = new();
+                        var response = await client.GetAsync("https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool/raw/refs/heads/master/IntuneWinAppUtil.exe");
+                        response.EnsureSuccessStatusCode();
+                        using var fs = new FileStream(intuneWinAppUtilPath, FileMode.Create, FileAccess.Write, FileShare.None);
+                        await response.Content.CopyToAsync(fs);
+                    } 
                 }
-                else
-                {
-                    using HttpClient client = new();
-                    var response = await client.GetAsync("https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool/raw/refs/heads/master/IntuneWinAppUtil.exe");
-                    response.EnsureSuccessStatusCode();
-                    using var fs = new FileStream(intuneWinAppUtilPath, FileMode.Create, FileAccess.Write, FileShare.None);
-                    await response.Content.CopyToAsync(fs);
-                }
+            } else {
+                using HttpClient client = new();
+                var response = await client.GetAsync("https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool/raw/refs/heads/master/IntuneWinAppUtil.exe");
+                response.EnsureSuccessStatusCode();
+                using var fs = new FileStream(intuneWinAppUtilPath, FileMode.Create, FileAccess.Write, FileShare.None);
+                await response.Content.CopyToAsync(fs);
             }
 
-            // Run the IntuneWinAppUtil.exe from powershell with the constructed arguments, and redirect the output to the text box if the "Verbose" checkbox is checked.
+                // Run the IntuneWinAppUtil.exe from powershell with the constructed arguments, and redirect the output to the text box if the "Verbose" checkbox is checked.
             ProcessStartInfo startInfo = new()
             {
                 FileName = "powershell.exe",
@@ -147,9 +138,9 @@ namespace Win32_Content_Prep_Tool_GUI
                 if (checkBox_verbose.Checked)
                 {
                     // check if produced file already exist
-                    if (File.Exists(Path.Combine(outputFolderPath, setupFile.Replace(".exe", ".intunewin"))))
+                    if (File.Exists(Path.Combine(outputFolderPath, Path.ChangeExtension(setupFile, ".intunewin"))))
                     {
-                        File.Delete(Path.Combine(outputFolderPath, setupFile.Replace(".exe", ".intunewin")));
+                        File.Delete(Path.Combine(outputFolderPath, Path.ChangeExtension(setupFile, ".intunewin")));
                     }
 
                     VerboseForm verboseForm = new();
@@ -202,14 +193,20 @@ namespace Win32_Content_Prep_Tool_GUI
 
         private void LinkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            // Open the link in the default browser
-            Process.Start(new ProcessStartInfo
+            try
             {
-                FileName = "https://github.com/Miiraak/Win32-Content-Prep-Tool-GUI",
-                UseShellExecute = true
-            });
+                // Open the link in the default browser
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "https://github.com/Miiraak/Win32-Content-Prep-Tool-GUI",
+                    UseShellExecute = true
+                });
 
-
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to open link: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }
