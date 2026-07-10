@@ -98,7 +98,7 @@ namespace Win32_Content_Prep_Tool_GUI
             string intuneWinAppUtilPath = Path.Combine(Path.GetTempPath(), "IntuneWinAppUtil.exe");
 
             // To avoid downloading the tool every time, check if it is already downloaded in the application directory.
-            // But if it is not found or intuneWinAppUtil.exe is older than 7 days, ask to download the latest version from GitHub.
+            // But if it is not found or intuneWinAppUtil.exe is older than 1 days, ask to download the latest version from GitHub.
             if (File.Exists(intuneWinAppUtilPath))
             {
                 DateTime lastWriteTime = File.GetLastWriteTime(intuneWinAppUtilPath);
@@ -107,19 +107,34 @@ namespace Win32_Content_Prep_Tool_GUI
                     DialogResult result = MessageBox.Show("IntuneWinAppUtil.exe is older than 1 day. Do you want to download the latest version from GitHub?", "Download Tool", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                     if (result == DialogResult.Yes)
                     {
-                        using HttpClient client = new();
-                        var response = await client.GetAsync("https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool/raw/refs/heads/master/IntuneWinAppUtil.exe");
-                        response.EnsureSuccessStatusCode();
-                        using var fs = new FileStream(intuneWinAppUtilPath, FileMode.Create, FileAccess.Write, FileShare.None);
-                        await response.Content.CopyToAsync(fs);
+                        try
+                        {
+                            using HttpClient client = new();
+                            var response = await client.GetAsync("https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool/raw/refs/heads/master/IntuneWinAppUtil.exe");
+                            response.EnsureSuccessStatusCode();
+                            using var fs = new FileStream(intuneWinAppUtilPath, FileMode.Create, FileAccess.Write, FileShare.None);
+                            await response.Content.CopyToAsync(fs);
+                        }
+                        catch (Exception ex) {
+                            MessageBox.Show($"Failed to download IntuneWinAppUtil.exe: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
                     } 
                 }
             } else {
-                using HttpClient client = new();
-                var response = await client.GetAsync("https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool/raw/refs/heads/master/IntuneWinAppUtil.exe");
-                response.EnsureSuccessStatusCode();
-                using var fs = new FileStream(intuneWinAppUtilPath, FileMode.Create, FileAccess.Write, FileShare.None);
-                await response.Content.CopyToAsync(fs);
+                try
+                {
+                    using HttpClient client = new();
+                    var response = await client.GetAsync("https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool/raw/refs/heads/master/IntuneWinAppUtil.exe");
+                    response.EnsureSuccessStatusCode();
+                    using var fs = new FileStream(intuneWinAppUtilPath, FileMode.Create, FileAccess.Write, FileShare.None);
+                    await response.Content.CopyToAsync(fs);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Failed to download IntuneWinAppUtil.exe: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
             }
 
                 // Run the IntuneWinAppUtil.exe from powershell with the constructed arguments, and redirect the output to the text box if the "Verbose" checkbox is checked.
@@ -137,10 +152,19 @@ namespace Win32_Content_Prep_Tool_GUI
             {
                 if (checkBox_verbose.Checked)
                 {
+                    string outputFilePath = Path.Combine(outputFolderPath, Path.ChangeExtension(setupFile, ".intunewin"));
                     // check if produced file already exist
-                    if (File.Exists(Path.Combine(outputFolderPath, Path.ChangeExtension(setupFile, ".intunewin"))))
+                    try
                     {
-                        File.Delete(Path.Combine(outputFolderPath, Path.ChangeExtension(setupFile, ".intunewin")));
+                        if (File.Exists(outputFilePath))
+                        {
+                            File.Delete(outputFilePath);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Failed to delete existing .intunewin file: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
                     }
 
                     VerboseForm verboseForm = new();
@@ -191,7 +215,7 @@ namespace Win32_Content_Prep_Tool_GUI
             MessageBox.Show("Command line copied to clipboard.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        private void LinkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private void LinkLabel_repo_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             try
             {
