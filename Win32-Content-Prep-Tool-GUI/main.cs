@@ -133,7 +133,7 @@ namespace Win32_Content_Prep_Tool_GUI
                     {
                         try
                         {
-                            using HttpClient client = new();
+                            using HttpClient client = new() { Timeout = TimeSpan.FromSeconds(30) };
                             var response = await client.GetAsync("https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool/raw/refs/heads/master/IntuneWinAppUtil.exe");
                             response.EnsureSuccessStatusCode();
                             using var fs = new FileStream(intuneWinAppUtilPath, FileMode.Create, FileAccess.Write, FileShare.None);
@@ -151,7 +151,7 @@ namespace Win32_Content_Prep_Tool_GUI
                 {
                     try
                     {
-                        using HttpClient client = new();
+                        using HttpClient client = new() { Timeout = TimeSpan.FromSeconds(30) };
                         var response = await client.GetAsync("https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool/raw/refs/heads/master/IntuneWinAppUtil.exe");
                         response.EnsureSuccessStatusCode();
                         using var fs = new FileStream(intuneWinAppUtilPath, FileMode.Create, FileAccess.Write, FileShare.None);
@@ -162,6 +162,11 @@ namespace Win32_Content_Prep_Tool_GUI
                         MessageBox.Show($"Failed to download IntuneWinAppUtil.exe: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
+                }
+                else
+                {
+                    MessageBox.Show("IntuneWinAppUtil.exe is required for the conversion process. Please download it manually from the GitHub repository.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); 
+                    return;
                 }
             }
 
