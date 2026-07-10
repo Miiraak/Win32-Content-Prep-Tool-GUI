@@ -13,6 +13,11 @@ namespace Win32_Content_Prep_Tool_GUI
             InitializeComponent();
         }
 
+        /// <summary>
+        /// Handles the click event for the "Select File" button. Opens a file dialog to select an executable or MSI file, and updates the source folder and setup file accordingly.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         private void Button_select_file_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new()
@@ -30,6 +35,11 @@ namespace Win32_Content_Prep_Tool_GUI
             }
         }
 
+        /// <summary>
+        /// Handles the click event for the "Select Output Folder" button. Opens a folder browser dialog to select an output folder, and updates the output folder path accordingly.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         private void ButtonOutputFolder_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog folderBrowserDialog = new();
@@ -41,6 +51,11 @@ namespace Win32_Content_Prep_Tool_GUI
             }
         }
 
+        /// <summary>
+        /// Handles the click event for the "Select Catalog" button. Opens a folder browser dialog to select a catalog folder, and updates the catalog folder path accordingly.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         private void Button_select_catalog_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog folderBrowserDialog = new();
@@ -52,6 +67,11 @@ namespace Win32_Content_Prep_Tool_GUI
             }
         }
 
+        /// <summary>
+        /// Handles the CheckedChanged event for the "Bundled Catalog" checkbox. Enables or disables the catalog folder selection controls based on the checkbox state.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         private void CheckBox_bundeled_catalog_CheckedChanged(object sender, EventArgs e)
         {
             if (checkBox_bundeled_catalog.Checked)
@@ -68,6 +88,11 @@ namespace Win32_Content_Prep_Tool_GUI
             }
         }
 
+        /// <summary>
+        /// Handles the click event for the "Convert" button. Validates the input, constructs the command line arguments, checks for the IntuneWinAppUtil.exe tool, downloads it if necessary, and executes the conversion process. Displays verbose output if enabled and shows a message when the conversion is complete.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         private async void Button_convert_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(sourceFolder) || string.IsNullOrEmpty(setupFile) || string.IsNullOrEmpty(outputFolderPath))
@@ -97,8 +122,7 @@ namespace Win32_Content_Prep_Tool_GUI
 
             string intuneWinAppUtilPath = Path.Combine(Path.GetTempPath(), "IntuneWinAppUtil.exe");
 
-            // To avoid downloading the tool every time, check if it is already downloaded in the application directory.
-            // But if it is not found or intuneWinAppUtil.exe is older than 1 days, ask to download the latest version from GitHub.
+
             if (File.Exists(intuneWinAppUtilPath))
             {
                 DateTime lastWriteTime = File.GetLastWriteTime(intuneWinAppUtilPath);
@@ -122,22 +146,25 @@ namespace Win32_Content_Prep_Tool_GUI
                     } 
                 }
             } else {
-                try
+                DialogResult result = MessageBox.Show("IntuneWinAppUtil.exe is not found. Do you want to download the latest version from GitHub?", "Download Tool", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (result == DialogResult.Yes)
                 {
-                    using HttpClient client = new();
-                    var response = await client.GetAsync("https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool/raw/refs/heads/master/IntuneWinAppUtil.exe");
-                    response.EnsureSuccessStatusCode();
-                    using var fs = new FileStream(intuneWinAppUtilPath, FileMode.Create, FileAccess.Write, FileShare.None);
-                    await response.Content.CopyToAsync(fs);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show($"Failed to download IntuneWinAppUtil.exe: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
+                    try
+                    {
+                        using HttpClient client = new();
+                        var response = await client.GetAsync("https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool/raw/refs/heads/master/IntuneWinAppUtil.exe");
+                        response.EnsureSuccessStatusCode();
+                        using var fs = new FileStream(intuneWinAppUtilPath, FileMode.Create, FileAccess.Write, FileShare.None);
+                        await response.Content.CopyToAsync(fs);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Failed to download IntuneWinAppUtil.exe: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
                 }
             }
 
-                // Run the IntuneWinAppUtil.exe from powershell with the constructed arguments, and redirect the output to the text box if the "Verbose" checkbox is checked.
             ProcessStartInfo startInfo = new()
             {
                 FileName = "powershell.exe",
@@ -153,7 +180,6 @@ namespace Win32_Content_Prep_Tool_GUI
                 if (checkBox_verbose.Checked)
                 {
                     string outputFilePath = Path.Combine(outputFolderPath, Path.ChangeExtension(setupFile, ".intunewin"));
-                    // check if produced file already exist
                     try
                     {
                         if (File.Exists(outputFilePath))
@@ -197,6 +223,11 @@ namespace Win32_Content_Prep_Tool_GUI
             Process.Start("explorer.exe", outputFolderPath);
         }
 
+        /// <summary>
+        /// Handles the click event for the "Copy Command Line" button. Constructs the command line arguments based on the current settings and copies them to the clipboard.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         private void Button_copy_commandline_Click(object sender, EventArgs e)
         {
             string commandLine = $"IntuneWinAppUtil.exe -c \"{sourceFolder}\" -s \"{setupFile}\" -o \"{outputFolderPath}\"";
@@ -215,11 +246,15 @@ namespace Win32_Content_Prep_Tool_GUI
             MessageBox.Show("Command line copied to clipboard.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
+        /// <summary>
+        /// Handles the LinkClicked event for the repository link label. Opens the GitHub repository URL in the default web browser.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         private void LinkLabel_repo_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             try
             {
-                // Open the link in the default browser
                 Process.Start(new ProcessStartInfo
                 {
                     FileName = "https://github.com/Miiraak/Win32-Content-Prep-Tool-GUI",

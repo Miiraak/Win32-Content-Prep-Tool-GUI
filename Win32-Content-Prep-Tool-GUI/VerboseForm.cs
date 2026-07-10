@@ -15,6 +15,10 @@ namespace Win32_Content_Prep_Tool_GUI
             InitializeComponent();
         }
 
+        /// <summary>
+        /// Appends text to the rich text box in a thread-safe manner.
+        /// </summary>
+        /// <param name="text">The text to append.</param>
         public void AppendText(string text)
         {
             if (InvokeRequired)
