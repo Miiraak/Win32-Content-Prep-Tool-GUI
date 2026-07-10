@@ -120,7 +120,7 @@ namespace Win32_Content_Prep_Tool_GUI
                 arguments += " -q";
             }
 
-            string intuneWinAppUtilPath = Path.Combine(Path.GetTempPath(), "IntuneWinAppUtil.exe");
+            string intuneWinAppUtilPath = Path.Combine(Path.GetTempPath(), "Win32-Content-Prep-Tool-GUI", "IntuneWinAppUtil.exe");
 
 
             if (File.Exists(intuneWinAppUtilPath))
@@ -134,7 +134,7 @@ namespace Win32_Content_Prep_Tool_GUI
                         try
                         {
                             using HttpClient client = new() { Timeout = TimeSpan.FromSeconds(30) };
-                            var response = await client.GetAsync("https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool/raw/refs/heads/master/IntuneWinAppUtil.exe");
+                            using var response = await client.GetAsync("https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool/raw/refs/heads/master/IntuneWinAppUtil.exe");
                             response.EnsureSuccessStatusCode();
                             using var fs = new FileStream(intuneWinAppUtilPath, FileMode.Create, FileAccess.Write, FileShare.None);
                             await response.Content.CopyToAsync(fs);
@@ -149,10 +149,11 @@ namespace Win32_Content_Prep_Tool_GUI
                 DialogResult result = MessageBox.Show("IntuneWinAppUtil.exe is not found. Do you want to download the latest version from GitHub?", "Download Tool", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (result == DialogResult.Yes)
                 {
+                    Directory.CreateDirectory(Path.GetDirectoryName(intuneWinAppUtilPath));
                     try
                     {
                         using HttpClient client = new() { Timeout = TimeSpan.FromSeconds(30) };
-                        var response = await client.GetAsync("https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool/raw/refs/heads/master/IntuneWinAppUtil.exe");
+                        using var response = await client.GetAsync("https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool/raw/refs/heads/master/IntuneWinAppUtil.exe");
                         response.EnsureSuccessStatusCode();
                         using var fs = new FileStream(intuneWinAppUtilPath, FileMode.Create, FileAccess.Write, FileShare.None);
                         await response.Content.CopyToAsync(fs);
@@ -166,6 +167,20 @@ namespace Win32_Content_Prep_Tool_GUI
                 else
                 {
                     MessageBox.Show("IntuneWinAppUtil.exe is required for the conversion process. Please download it manually from the GitHub repository.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); 
+                    return;
+                }
+            }
+
+            // Hash check for IntuneWinAppUtil.exe to ensure it is the expected version and has not been tampered with
+            string expectedHash = "C1BA45B5CB939E84AF064BB7FF4B38FB3DFE33C8DC1078FD9B157672EAE671F6";
+            using (var sha256 = System.Security.Cryptography.SHA256.Create())
+            {
+                using var stream = File.OpenRead(intuneWinAppUtilPath);
+                var hashBytes = sha256.ComputeHash(stream);
+                var actualHash = Convert.ToHexString(hashBytes).ToUpperInvariant();
+                if (actualHash != expectedHash)
+                {
+                    MessageBox.Show("The downloaded IntuneWinAppUtil.exe file is corrupted, has been tampered with or is not the expected version. Please download it manually from the GitHub repository.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
             }
