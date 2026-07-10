@@ -214,7 +214,13 @@ This project is useful for:
 
 ## Screenshots
 
-[IMG]
+<p align="left">
+  <img src="https://github.com/user-attachments/assets/7ef50a0c-21ca-40a0-8f9d-fbd4bbf586d5" alt="Main window" width="400" />
+</p>
+
+<p align="left">
+  <img src="https://github.com/user-attachments/assets/e48a5766-a9f2-4014-91b7-860d58e6a795" alt="Verbose window" width="400" />
+</p>
 
 ---
 
