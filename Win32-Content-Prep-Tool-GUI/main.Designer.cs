@@ -30,7 +30,7 @@
         {
             button_select_file = new Button();
             textBox_exec_path = new TextBox();
-            label1 = new Label();
+            label_win32Exec = new Label();
             button_convert = new Button();
             checkBox_bundeled_catalog = new CheckBox();
             label_catalog = new Label();
@@ -41,6 +41,7 @@
             buttonOutputFolder = new Button();
             button_copy_args = new Button();
             checkBox_verbose = new CheckBox();
+            linkLabel_repo = new LinkLabel();
             SuspendLayout();
             // 
             // button_select_file
@@ -61,19 +62,19 @@
             textBox_exec_path.Size = new Size(416, 27);
             textBox_exec_path.TabIndex = 2;
             // 
-            // label1
+            // label_win32Exec
             // 
-            label1.AutoSize = true;
-            label1.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            label1.Location = new Point(12, 9);
-            label1.Name = "label1";
-            label1.Size = new Size(142, 20);
-            label1.TabIndex = 3;
-            label1.Text = "Win32 executable :";
+            label_win32Exec.AutoSize = true;
+            label_win32Exec.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            label_win32Exec.Location = new Point(12, 9);
+            label_win32Exec.Name = "label_win32Exec";
+            label_win32Exec.Size = new Size(142, 20);
+            label_win32Exec.TabIndex = 3;
+            label_win32Exec.Text = "Win32 executable :";
             // 
             // button_convert
             // 
-            button_convert.Location = new Point(292, 210);
+            button_convert.Location = new Point(292, 218);
             button_convert.Name = "button_convert";
             button_convert.Size = new Size(177, 29);
             button_convert.TabIndex = 4;
@@ -152,7 +153,7 @@
             // 
             // button_copy_args
             // 
-            button_copy_args.Location = new Point(343, 175);
+            button_copy_args.Location = new Point(343, 183);
             button_copy_args.Name = "button_copy_args";
             button_copy_args.Size = new Size(126, 29);
             button_copy_args.TabIndex = 14;
@@ -163,19 +164,33 @@
             // checkBox_verbose
             // 
             checkBox_verbose.AutoSize = true;
-            checkBox_verbose.Location = new Point(12, 210);
+            checkBox_verbose.Location = new Point(12, 201);
             checkBox_verbose.Name = "checkBox_verbose";
             checkBox_verbose.Size = new Size(84, 24);
             checkBox_verbose.TabIndex = 15;
             checkBox_verbose.Text = "Verbose";
             checkBox_verbose.UseVisualStyleBackColor = true;
             // 
+            // linkLabel_repo
+            // 
+            linkLabel_repo.AutoSize = true;
+            linkLabel_repo.Font = new Font("Segoe UI", 7.8F, FontStyle.Italic, GraphicsUnit.Point, 0);
+            linkLabel_repo.LinkColor = Color.DimGray;
+            linkLabel_repo.Location = new Point(12, 233);
+            linkLabel_repo.Name = "linkLabel_repo";
+            linkLabel_repo.Size = new Size(158, 17);
+            linkLabel_repo.TabIndex = 16;
+            linkLabel_repo.TabStop = true;
+            linkLabel_repo.Text = "Copyright (c) 2026 Miiraak";
+            linkLabel_repo.LinkClicked += LinkLabel_repo_LinkClicked;
+            // 
             // Main
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            ClientSize = new Size(483, 251);
+            ClientSize = new Size(483, 259);
+            Controls.Add(linkLabel_repo);
             Controls.Add(checkBox_verbose);
             Controls.Add(button_copy_args);
             Controls.Add(label_outputfolder);
@@ -186,7 +201,7 @@
             Controls.Add(label_catalog);
             Controls.Add(checkBox_bundeled_catalog);
             Controls.Add(button_convert);
-            Controls.Add(label1);
+            Controls.Add(label_win32Exec);
             Controls.Add(textBox_exec_path);
             Controls.Add(button_select_file);
             MaximizeBox = false;
@@ -201,7 +216,7 @@
         #endregion
         private Button button_select_file;
         private TextBox textBox_exec_path;
-        private Label label1;
+        private Label label_win32Exec;
         private Button button_convert;
         private CheckBox checkBox_bundeled_catalog;
         private Label label_catalog;
@@ -212,5 +227,6 @@
         private Button buttonOutputFolder;
         private Button button_copy_args;
         private CheckBox checkBox_verbose;
+        private LinkLabel linkLabel_repo;
     }
 }

@@ -13,6 +13,11 @@ namespace Win32_Content_Prep_Tool_GUI
             InitializeComponent();
         }
 
+        /// <summary>
+        /// Handles the click event for the "Select File" button. Opens a file dialog to select an executable or MSI file, and updates the source folder and setup file accordingly.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         private void Button_select_file_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new()
@@ -30,6 +35,11 @@ namespace Win32_Content_Prep_Tool_GUI
             }
         }
 
+        /// <summary>
+        /// Handles the click event for the "Select Output Folder" button. Opens a folder browser dialog to select an output folder, and updates the output folder path accordingly.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         private void ButtonOutputFolder_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog folderBrowserDialog = new();
@@ -41,6 +51,11 @@ namespace Win32_Content_Prep_Tool_GUI
             }
         }
 
+        /// <summary>
+        /// Handles the click event for the "Select Catalog" button. Opens a folder browser dialog to select a catalog folder, and updates the catalog folder path accordingly.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         private void Button_select_catalog_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog folderBrowserDialog = new();
@@ -52,6 +67,11 @@ namespace Win32_Content_Prep_Tool_GUI
             }
         }
 
+        /// <summary>
+        /// Handles the CheckedChanged event for the "Bundled Catalog" checkbox. Enables or disables the catalog folder selection controls based on the checkbox state.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         private void CheckBox_bundeled_catalog_CheckedChanged(object sender, EventArgs e)
         {
             if (checkBox_bundeled_catalog.Checked)
@@ -59,15 +79,18 @@ namespace Win32_Content_Prep_Tool_GUI
                 textBox_catalog_folder.Enabled = true;
                 label_catalog.Enabled = true;
                 button_select_catalog.Enabled = true;
-            }
-            else
-            {
+            } else {
                 textBox_catalog_folder.Enabled = false;
                 label_catalog.Enabled = false;
                 button_select_catalog.Enabled = false;
             }
         }
 
+        /// <summary>
+        /// Handles the click event for the "Convert" button. Validates the input, constructs the command line arguments, checks for the IntuneWinAppUtil.exe tool, downloads it if necessary, and executes the conversion process. Displays verbose output if enabled and shows a message when the conversion is complete.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         private async void Button_convert_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(sourceFolder) || string.IsNullOrEmpty(setupFile) || string.IsNullOrEmpty(outputFolderPath))
@@ -91,55 +114,117 @@ namespace Win32_Content_Prep_Tool_GUI
             }
 
             if (!checkBox_verbose.Checked)
-            {
                 arguments += " -q";
-            }
 
-            string intuneWinAppUtilPath = "IntuneWinAppUtil.exe";
+            string intuneWinAppUtilPath = Path.Combine(Path.GetTempPath(), "Win32-Content-Prep-Tool-GUI", "IntuneWinAppUtil.exe");
 
-            // Verify if IntuneWinAppUtil.exe exists alongside the application.
-            if (!File.Exists(intuneWinAppUtilPath))
+
+            if (File.Exists(intuneWinAppUtilPath))
             {
-                // Open a message box to to choose whether to download the tool from GitHub or to select the path to the tool if it is already downloaded.
-                DialogResult result = MessageBox.Show("IntuneWinAppUtil.exe not found. Do you want to download it from GitHub?", "Download Tool", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                if (result == DialogResult.No)
+                DateTime lastWriteTime = File.GetLastWriteTime(intuneWinAppUtilPath);
+                if ((DateTime.Now - lastWriteTime).TotalDays > 1)
                 {
-                    OpenFileDialog openFileDialog = new()
+                    DialogResult result = MessageBox.Show("IntuneWinAppUtil.exe is older than 1 day. Do you want to download the latest version from GitHub?", "Download Tool", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                    if (result == DialogResult.Yes)
                     {
-                        Filter = "Executable files (*.exe)|*.exe",
-                        Title = "Select IntuneWinAppUtil.exe"
-                    };
-                    if (openFileDialog.ShowDialog() == DialogResult.OK)
-                    {
-                        // Check if the selected file is IntuneWinAppUtil.exe
-                        if (Path.GetFileName(openFileDialog.FileName) != "IntuneWinAppUtil.exe")
+                        try
                         {
-                            MessageBox.Show("The selected file is not IntuneWinAppUtil.exe. Please select the correct file.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            using HttpClient client = new() { Timeout = TimeSpan.FromSeconds(30) };
+                            using var response = await client.GetAsync("https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool/raw/refs/heads/master/IntuneWinAppUtil.exe");
+                            response.EnsureSuccessStatusCode();
+                            using var fs = new FileStream(intuneWinAppUtilPath, FileMode.Create, FileAccess.Write, FileShare.None);
+                            await response.Content.CopyToAsync(fs);
+                        }
+                        catch (Exception ex) {
+                            MessageBox.Show($"Failed to download IntuneWinAppUtil.exe: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            if (File.Exists(intuneWinAppUtilPath))
+                            {
+                                try
+                                {
+                                    File.Delete(intuneWinAppUtilPath);
+                                }
+                                catch (Exception deleteEx)
+                                {
+                                    MessageBox.Show($"Failed to delete the corrupted IntuneWinAppUtil.exe file: {deleteEx.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                }
+                            }
                             return;
                         }
-
-                        intuneWinAppUtilPath = openFileDialog.FileName;
-                    }
-                    else { return; }
+                    } 
                 }
-                else
+            } else {
+                DialogResult result = MessageBox.Show("IntuneWinAppUtil.exe is not found. Do you want to download the latest version from GitHub?", "Download Tool", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (result == DialogResult.Yes)
                 {
-                    // Download the IntuneWinAppUtil.exe in temp folder
-                    intuneWinAppUtilPath = Path.Combine(Path.GetTempPath(), "IntuneWinAppUtil.exe");
-                    if (!File.Exists(intuneWinAppUtilPath))
+                    Directory.CreateDirectory(Path.GetDirectoryName(intuneWinAppUtilPath));
+                    try
                     {
-                        using HttpClient client = new();
-                        var response = await client.GetAsync("https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool/raw/refs/heads/master/IntuneWinAppUtil.exe");
+                        using HttpClient client = new() { Timeout = TimeSpan.FromSeconds(30) };
+                        using var response = await client.GetAsync("https://github.com/microsoft/Microsoft-Win32-Content-Prep-Tool/raw/refs/heads/master/IntuneWinAppUtil.exe");
                         response.EnsureSuccessStatusCode();
                         using var fs = new FileStream(intuneWinAppUtilPath, FileMode.Create, FileAccess.Write, FileShare.None);
                         await response.Content.CopyToAsync(fs);
                     }
-
-                    intuneWinAppUtilPath = Path.Combine(Path.GetTempPath(), "IntuneWinAppUtil.exe");
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Failed to download IntuneWinAppUtil.exe: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        if (File.Exists(intuneWinAppUtilPath))
+                        {
+                            try
+                            {
+                                File.Delete(intuneWinAppUtilPath);
+                            }
+                            catch (Exception deleteEx)
+                            {
+                                MessageBox.Show($"Failed to delete the corrupted IntuneWinAppUtil.exe file: {deleteEx.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                        }
+                        return;
+                    }
+                } else {
+                    MessageBox.Show("IntuneWinAppUtil.exe is required for the conversion process. Please download it manually from the GitHub repository.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); 
+                    return;
                 }
             }
 
-            // Run the IntuneWinAppUtil.exe from powershell with the constructed arguments, and redirect the output to the text box if the "Verbose" checkbox is checked.
+            // Hash check for IntuneWinAppUtil.exe to ensure it is the expected version and has not been tampered with
+            string expectedHash = "C1BA45B5CB939E84AF064BB7FF4B38FB3DFE33C8DC1078FD9B157672EAE671F6";
+            try
+            {
+                using (var sha256 = System.Security.Cryptography.SHA256.Create())
+                {
+                    using var stream = File.OpenRead(intuneWinAppUtilPath);
+                    var hashBytes = sha256.ComputeHash(stream);
+                    var actualHash = Convert.ToHexString(hashBytes).ToUpperInvariant();
+                    if (actualHash != expectedHash)
+                    {
+                        MessageBox.Show("The downloaded IntuneWinAppUtil.exe file is corrupted, has been tampered with or is not the expected version. Please download it manually from the GitHub repository.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        try
+                        {
+                            File.Delete(intuneWinAppUtilPath);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"Failed to delete the corrupted IntuneWinAppUtil.exe file: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                        return;
+                    }
+                }
+            } 
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to verify the integrity of IntuneWinAppUtil.exe: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                try
+                {
+                    File.Delete(intuneWinAppUtilPath);
+                }
+                catch (Exception deleteEx)
+                {
+                    MessageBox.Show($"Failed to delete the corrupted IntuneWinAppUtil.exe file: {deleteEx.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                return;
+            }
+
             ProcessStartInfo startInfo = new()
             {
                 FileName = "powershell.exe",
@@ -154,21 +239,29 @@ namespace Win32_Content_Prep_Tool_GUI
             {
                 if (checkBox_verbose.Checked)
                 {
+                    string outputFilePath = Path.Combine(outputFolderPath, Path.ChangeExtension(setupFile, ".intunewin"));
+                    try
+                    {
+                        if (File.Exists(outputFilePath))
+                            File.Delete(outputFilePath);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Failed to delete existing .intunewin file: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+
                     VerboseForm verboseForm = new();
                     verboseForm.Show();
                     process.OutputDataReceived += (s, ea) =>
                     {
                         if (ea.Data != null)
-                        {
                             verboseForm.AppendText(ea.Data);
-                        }
                     };
                     process.ErrorDataReceived += (s, ea) =>
                     {
                         if (ea.Data != null)
-                        {
                             verboseForm.AppendText(ea.Data);
-                        }
                     };
                 }
                 process.Start();
@@ -184,22 +277,45 @@ namespace Win32_Content_Prep_Tool_GUI
             Process.Start("explorer.exe", outputFolderPath);
         }
 
+        /// <summary>
+        /// Handles the click event for the "Copy Command Line" button. Constructs the command line arguments based on the current settings and copies them to the clipboard.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         private void Button_copy_commandline_Click(object sender, EventArgs e)
         {
             string commandLine = $"IntuneWinAppUtil.exe -c \"{sourceFolder}\" -s \"{setupFile}\" -o \"{outputFolderPath}\"";
 
             if (checkBox_bundeled_catalog.Checked && !string.IsNullOrEmpty(textBox_catalog_folder.Text))
-            {
                 commandLine += $" -a \"{textBox_catalog_folder.Text}\"";
-            }
 
             if (!checkBox_verbose.Checked)
-            {
                 commandLine += " -q";
-            }
 
             Clipboard.SetText(commandLine);
             MessageBox.Show("Command line copied to clipboard.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        /// <summary>
+        /// Handles the LinkClicked event for the repository link label. Opens the GitHub repository URL in the default web browser.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
+        private void LinkLabel_repo_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "https://github.com/Miiraak/Win32-Content-Prep-Tool-GUI",
+                    UseShellExecute = true
+                });
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to open link: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }
