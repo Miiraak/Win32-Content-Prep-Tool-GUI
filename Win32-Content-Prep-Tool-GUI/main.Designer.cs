@@ -212,14 +212,14 @@
             runAsAdministratorToolStripMenuItem.Name = "runAsAdministratorToolStripMenuItem";
             runAsAdministratorToolStripMenuItem.Size = new Size(230, 26);
             runAsAdministratorToolStripMenuItem.Text = "Run as Administrator";
-            runAsAdministratorToolStripMenuItem.Click += runAsAdministratorToolStripMenuItem_Click;
+            runAsAdministratorToolStripMenuItem.Click += RunAsAdministratorToolStripMenuItem_Click;
             // 
             // toolStripMenuItem_help
             // 
             toolStripMenuItem_help.Name = "toolStripMenuItem_help";
             toolStripMenuItem_help.Size = new Size(55, 24);
             toolStripMenuItem_help.Text = "Help";
-            toolStripMenuItem_help.Click += toolStripMenuItem_help_Click;
+            toolStripMenuItem_help.Click += ToolStripMenuItem_help_Click;
             // 
             // Main
             // 

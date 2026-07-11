@@ -204,24 +204,22 @@ namespace Win32_Content_Prep_Tool_GUI
             string expectedHash = "C1BA45B5CB939E84AF064BB7FF4B38FB3DFE33C8DC1078FD9B157672EAE671F6";
             try
             {
-                using (var sha256 = System.Security.Cryptography.SHA256.Create())
+                using var sha256 = System.Security.Cryptography.SHA256.Create();
+                using var stream = File.OpenRead(intuneWinAppUtilPath);
+                var hashBytes = sha256.ComputeHash(stream);
+                var actualHash = Convert.ToHexString(hashBytes).ToUpperInvariant();
+                if (actualHash != expectedHash)
                 {
-                    using var stream = File.OpenRead(intuneWinAppUtilPath);
-                    var hashBytes = sha256.ComputeHash(stream);
-                    var actualHash = Convert.ToHexString(hashBytes).ToUpperInvariant();
-                    if (actualHash != expectedHash)
+                    MessageBox.Show("The downloaded IntuneWinAppUtil.exe file is corrupted, has been tampered with or is not the expected version. Please download it manually from the GitHub repository.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    try
                     {
-                        MessageBox.Show("The downloaded IntuneWinAppUtil.exe file is corrupted, has been tampered with or is not the expected version. Please download it manually from the GitHub repository.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        try
-                        {
-                            File.Delete(intuneWinAppUtilPath);
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show($"Failed to delete the corrupted IntuneWinAppUtil.exe file: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                        return;
+                        File.Delete(intuneWinAppUtilPath);
                     }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Failed to delete the corrupted IntuneWinAppUtil.exe file: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    return;
                 }
             }
             catch (Exception ex)
@@ -264,7 +262,7 @@ namespace Win32_Content_Prep_Tool_GUI
                         return;
                     }
 
-                    VerboseForm verboseForm = new VerboseForm("log");
+                    VerboseForm verboseForm = new();
                     verboseForm.Show();
                     process.OutputDataReceived += (s, ea) =>
                     {
@@ -336,7 +334,7 @@ namespace Win32_Content_Prep_Tool_GUI
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The event data.</param>
-        private void runAsAdministratorToolStripMenuItem_Click(object sender, EventArgs e)
+        private void RunAsAdministratorToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (!IsAdministrator())
             {
@@ -378,10 +376,10 @@ namespace Win32_Content_Prep_Tool_GUI
         /// </summary>
         /// <param name="sender">The source of the event.</param>
         /// <param name="e">The event data.</param>
-        private void toolStripMenuItem_help_Click(object sender, EventArgs e)
+        private void ToolStripMenuItem_help_Click(object sender, EventArgs e)
         {
             // Call the VerboseForm with "help" mode to display help information
-            VerboseForm helpForm = new VerboseForm("help");
+            VerboseForm helpForm = new("help");
             helpForm.Show();
         }
     }
