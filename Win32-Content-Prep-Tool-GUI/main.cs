@@ -85,9 +85,7 @@ namespace Win32_Content_Prep_Tool_GUI
                 textBox_catalog_folder.Enabled = true;
                 label_catalog.Enabled = true;
                 button_select_catalog.Enabled = true;
-            }
-            else
-            {
+            } else {
                 textBox_catalog_folder.Enabled = false;
                 label_catalog.Enabled = false;
                 button_select_catalog.Enabled = false;
