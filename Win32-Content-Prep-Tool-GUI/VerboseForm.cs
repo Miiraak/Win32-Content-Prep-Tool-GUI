@@ -8,7 +8,7 @@
         {
             InitializeComponent();
 
-            this.mode = mode.ToLower();
+            this.mode = (mode?.Trim() ?? "log").ToLowerInvariant();
             if (this.mode == "help")
                 HelpForm();
         }
@@ -35,11 +35,11 @@
             richTextBox_verbose.Text = "Win32-Content-Prep-Tool-GUI Help\n\n" +
                 "This application is a GUI wrapper for the IntuneWinAppUtil.exe command line tool.\n\n" +
                 "Usage:\n" +
-                "1. Select the source folder containing the application files.\n" +
+                "1. Select the setup file (the main executable or installer).\n" +
                 "2. Specify the output folder where the .intunewin file will be created.\n" +
-                "3. Enter the setup file name (the main executable or installer).\n" +
-                "4. Optionally, provide any command line arguments for the setup file.\n" +
-                "5. Click 'Create IntuneWin' to generate the .intunewin package.\n\n" +
+                "3. (Optional) Enable 'Bundled Catalog' and select the catalog folder.\n" +
+                "4. (Optional) Enable 'Verbose' to see detailed logs of the packaging process.\n" +
+                "5. Click 'Convert to .Intunewin' to generate the .intunewin package.\n\n" +
                 "Command Line Arguments for IntuneWinAppUtil.exe:\n" +
                 "-c <source_folder> : Specifies the source folder containing the application files.\n" +
                 "-s <setup_file>    : Specifies the setup file name (main executable or installer).\n" +
