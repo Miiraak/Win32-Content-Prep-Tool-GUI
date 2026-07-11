@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
             button_select_file = new Button();
             textBox_exec_path = new TextBox();
             label_win32Exec = new Label();
@@ -42,11 +43,16 @@
             button_copy_args = new Button();
             checkBox_verbose = new CheckBox();
             linkLabel_repo = new LinkLabel();
+            menuStrip1 = new MenuStrip();
+            toolStripMenuItem_options = new ToolStripMenuItem();
+            runAsAdministratorToolStripMenuItem = new ToolStripMenuItem();
+            toolStripMenuItem_help = new ToolStripMenuItem();
+            menuStrip1.SuspendLayout();
             SuspendLayout();
             // 
             // button_select_file
             // 
-            button_select_file.Location = new Point(434, 27);
+            button_select_file.Location = new Point(434, 55);
             button_select_file.Name = "button_select_file";
             button_select_file.Size = new Size(35, 36);
             button_select_file.TabIndex = 1;
@@ -56,7 +62,7 @@
             // 
             // textBox_exec_path
             // 
-            textBox_exec_path.Location = new Point(12, 32);
+            textBox_exec_path.Location = new Point(12, 60);
             textBox_exec_path.Name = "textBox_exec_path";
             textBox_exec_path.ReadOnly = true;
             textBox_exec_path.Size = new Size(416, 27);
@@ -66,7 +72,7 @@
             // 
             label_win32Exec.AutoSize = true;
             label_win32Exec.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            label_win32Exec.Location = new Point(12, 9);
+            label_win32Exec.Location = new Point(12, 37);
             label_win32Exec.Name = "label_win32Exec";
             label_win32Exec.Size = new Size(142, 20);
             label_win32Exec.TabIndex = 3;
@@ -74,7 +80,7 @@
             // 
             // button_convert
             // 
-            button_convert.Location = new Point(292, 218);
+            button_convert.Location = new Point(292, 246);
             button_convert.Name = "button_convert";
             button_convert.Size = new Size(177, 29);
             button_convert.TabIndex = 4;
@@ -85,7 +91,7 @@
             // checkBox_bundeled_catalog
             // 
             checkBox_bundeled_catalog.AutoSize = true;
-            checkBox_bundeled_catalog.Location = new Point(12, 171);
+            checkBox_bundeled_catalog.Location = new Point(12, 199);
             checkBox_bundeled_catalog.Name = "checkBox_bundeled_catalog";
             checkBox_bundeled_catalog.Size = new Size(263, 24);
             checkBox_bundeled_catalog.TabIndex = 5;
@@ -98,7 +104,7 @@
             label_catalog.AutoSize = true;
             label_catalog.Enabled = false;
             label_catalog.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            label_catalog.Location = new Point(12, 116);
+            label_catalog.Location = new Point(12, 144);
             label_catalog.Name = "label_catalog";
             label_catalog.Size = new Size(116, 20);
             label_catalog.TabIndex = 6;
@@ -106,7 +112,7 @@
             // 
             // textBox_catalog_folder
             // 
-            textBox_catalog_folder.Location = new Point(12, 138);
+            textBox_catalog_folder.Location = new Point(12, 166);
             textBox_catalog_folder.Name = "textBox_catalog_folder";
             textBox_catalog_folder.ReadOnly = true;
             textBox_catalog_folder.Size = new Size(416, 27);
@@ -115,7 +121,7 @@
             // button_select_catalog
             // 
             button_select_catalog.Enabled = false;
-            button_select_catalog.Location = new Point(434, 133);
+            button_select_catalog.Location = new Point(434, 161);
             button_select_catalog.Name = "button_select_catalog";
             button_select_catalog.Size = new Size(35, 36);
             button_select_catalog.TabIndex = 8;
@@ -127,7 +133,7 @@
             // 
             label_outputfolder.AutoSize = true;
             label_outputfolder.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-            label_outputfolder.Location = new Point(12, 62);
+            label_outputfolder.Location = new Point(12, 90);
             label_outputfolder.Name = "label_outputfolder";
             label_outputfolder.Size = new Size(113, 20);
             label_outputfolder.TabIndex = 11;
@@ -135,7 +141,7 @@
             // 
             // textBox_output_path
             // 
-            textBox_output_path.Location = new Point(12, 84);
+            textBox_output_path.Location = new Point(12, 112);
             textBox_output_path.Name = "textBox_output_path";
             textBox_output_path.ReadOnly = true;
             textBox_output_path.Size = new Size(416, 27);
@@ -143,7 +149,7 @@
             // 
             // buttonOutputFolder
             // 
-            buttonOutputFolder.Location = new Point(434, 80);
+            buttonOutputFolder.Location = new Point(434, 108);
             buttonOutputFolder.Name = "buttonOutputFolder";
             buttonOutputFolder.Size = new Size(35, 36);
             buttonOutputFolder.TabIndex = 9;
@@ -153,7 +159,7 @@
             // 
             // button_copy_args
             // 
-            button_copy_args.Location = new Point(343, 183);
+            button_copy_args.Location = new Point(343, 211);
             button_copy_args.Name = "button_copy_args";
             button_copy_args.Size = new Size(126, 29);
             button_copy_args.TabIndex = 14;
@@ -164,7 +170,7 @@
             // checkBox_verbose
             // 
             checkBox_verbose.AutoSize = true;
-            checkBox_verbose.Location = new Point(12, 201);
+            checkBox_verbose.Location = new Point(12, 229);
             checkBox_verbose.Name = "checkBox_verbose";
             checkBox_verbose.Size = new Size(84, 24);
             checkBox_verbose.TabIndex = 15;
@@ -176,7 +182,7 @@
             linkLabel_repo.AutoSize = true;
             linkLabel_repo.Font = new Font("Segoe UI", 7.8F, FontStyle.Italic, GraphicsUnit.Point, 0);
             linkLabel_repo.LinkColor = Color.DimGray;
-            linkLabel_repo.Location = new Point(12, 233);
+            linkLabel_repo.Location = new Point(12, 261);
             linkLabel_repo.Name = "linkLabel_repo";
             linkLabel_repo.Size = new Size(158, 17);
             linkLabel_repo.TabIndex = 16;
@@ -184,12 +190,43 @@
             linkLabel_repo.Text = "Copyright (c) 2026 Miiraak";
             linkLabel_repo.LinkClicked += LinkLabel_repo_LinkClicked;
             // 
+            // menuStrip1
+            // 
+            menuStrip1.ImageScalingSize = new Size(20, 20);
+            menuStrip1.Items.AddRange(new ToolStripItem[] { toolStripMenuItem_options, toolStripMenuItem_help });
+            menuStrip1.Location = new Point(0, 0);
+            menuStrip1.Name = "menuStrip1";
+            menuStrip1.Size = new Size(483, 28);
+            menuStrip1.TabIndex = 17;
+            menuStrip1.Text = "menuStrip1";
+            // 
+            // toolStripMenuItem_options
+            // 
+            toolStripMenuItem_options.DropDownItems.AddRange(new ToolStripItem[] { runAsAdministratorToolStripMenuItem });
+            toolStripMenuItem_options.Name = "toolStripMenuItem_options";
+            toolStripMenuItem_options.Size = new Size(75, 24);
+            toolStripMenuItem_options.Text = "Options";
+            // 
+            // runAsAdministratorToolStripMenuItem
+            // 
+            runAsAdministratorToolStripMenuItem.Name = "runAsAdministratorToolStripMenuItem";
+            runAsAdministratorToolStripMenuItem.Size = new Size(230, 26);
+            runAsAdministratorToolStripMenuItem.Text = "Run as Administrator";
+            runAsAdministratorToolStripMenuItem.Click += RunAsAdministratorToolStripMenuItem_Click;
+            // 
+            // toolStripMenuItem_help
+            // 
+            toolStripMenuItem_help.Name = "toolStripMenuItem_help";
+            toolStripMenuItem_help.Size = new Size(55, 24);
+            toolStripMenuItem_help.Text = "Help";
+            toolStripMenuItem_help.Click += ToolStripMenuItem_help_Click;
+            // 
             // Main
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            ClientSize = new Size(483, 259);
+            ClientSize = new Size(483, 285);
             Controls.Add(linkLabel_repo);
             Controls.Add(checkBox_verbose);
             Controls.Add(button_copy_args);
@@ -204,11 +241,16 @@
             Controls.Add(label_win32Exec);
             Controls.Add(textBox_exec_path);
             Controls.Add(button_select_file);
+            Controls.Add(menuStrip1);
+            Icon = (Icon)resources.GetObject("$this.Icon");
+            MainMenuStrip = menuStrip1;
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "Main";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Win32-Content-Prep-Tool-GUI";
+            menuStrip1.ResumeLayout(false);
+            menuStrip1.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -228,5 +270,9 @@
         private Button button_copy_args;
         private CheckBox checkBox_verbose;
         private LinkLabel linkLabel_repo;
+        private MenuStrip menuStrip1;
+        private ToolStripMenuItem toolStripMenuItem_options;
+        private ToolStripMenuItem runAsAdministratorToolStripMenuItem;
+        private ToolStripMenuItem toolStripMenuItem_help;
     }
 }

@@ -11,6 +11,12 @@ namespace Win32_Content_Prep_Tool_GUI
         public Main()
         {
             InitializeComponent();
+
+            if (IsAdministrator())
+            {
+                // change the title of the form to indicate that it is running as administrator
+                this.Text = "Win32-Content-Prep-Tool-GUI (Administrator)";
+            }
         }
 
         /// <summary>
@@ -135,7 +141,8 @@ namespace Win32_Content_Prep_Tool_GUI
                             using var fs = new FileStream(intuneWinAppUtilPath, FileMode.Create, FileAccess.Write, FileShare.None);
                             await response.Content.CopyToAsync(fs);
                         }
-                        catch (Exception ex) {
+                        catch (Exception ex)
+                        {
                             MessageBox.Show($"Failed to download IntuneWinAppUtil.exe: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             if (File.Exists(intuneWinAppUtilPath))
                             {
@@ -150,9 +157,11 @@ namespace Win32_Content_Prep_Tool_GUI
                             }
                             return;
                         }
-                    } 
+                    }
                 }
-            } else {
+            }
+            else
+            {
                 DialogResult result = MessageBox.Show("IntuneWinAppUtil.exe is not found. Do you want to download the latest version from GitHub?", "Download Tool", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (result == DialogResult.Yes)
                 {
@@ -181,8 +190,10 @@ namespace Win32_Content_Prep_Tool_GUI
                         }
                         return;
                     }
-                } else {
-                    MessageBox.Show("IntuneWinAppUtil.exe is required for the conversion process. Please download it manually from the GitHub repository.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); 
+                }
+                else
+                {
+                    MessageBox.Show("IntuneWinAppUtil.exe is required for the conversion process. Please download it manually from the GitHub repository.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
             }
@@ -191,26 +202,24 @@ namespace Win32_Content_Prep_Tool_GUI
             string expectedHash = "C1BA45B5CB939E84AF064BB7FF4B38FB3DFE33C8DC1078FD9B157672EAE671F6";
             try
             {
-                using (var sha256 = System.Security.Cryptography.SHA256.Create())
+                using var sha256 = System.Security.Cryptography.SHA256.Create();
+                using var stream = File.OpenRead(intuneWinAppUtilPath);
+                var hashBytes = sha256.ComputeHash(stream);
+                var actualHash = Convert.ToHexString(hashBytes).ToUpperInvariant();
+                if (actualHash != expectedHash)
                 {
-                    using var stream = File.OpenRead(intuneWinAppUtilPath);
-                    var hashBytes = sha256.ComputeHash(stream);
-                    var actualHash = Convert.ToHexString(hashBytes).ToUpperInvariant();
-                    if (actualHash != expectedHash)
+                    MessageBox.Show("The downloaded IntuneWinAppUtil.exe file is corrupted, has been tampered with or is not the expected version. Please download it manually from the GitHub repository.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    try
                     {
-                        MessageBox.Show("The downloaded IntuneWinAppUtil.exe file is corrupted, has been tampered with or is not the expected version. Please download it manually from the GitHub repository.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        try
-                        {
-                            File.Delete(intuneWinAppUtilPath);
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show($"Failed to delete the corrupted IntuneWinAppUtil.exe file: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                        return;
+                        File.Delete(intuneWinAppUtilPath);
                     }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Failed to delete the corrupted IntuneWinAppUtil.exe file: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    return;
                 }
-            } 
+            }
             catch (Exception ex)
             {
                 MessageBox.Show($"Failed to verify the integrity of IntuneWinAppUtil.exe: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -316,6 +325,68 @@ namespace Win32_Content_Prep_Tool_GUI
             {
                 MessageBox.Show($"Failed to open link: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        /// <summary>
+        /// Handles the click event for the "Run as Administrator" menu item. Restarts the application with elevated privileges if not already running as administrator.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
+        private void RunAsAdministratorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!IsAdministrator())
+            {
+                try
+                {
+                    ProcessStartInfo startInfo = new()
+                    {
+                        FileName = Application.ExecutablePath,
+                        UseShellExecute = true,
+                        Verb = "runas"
+                    };
+                    Process.Start(startInfo);
+                    Application.Exit();
+                }
+                catch (Exception ex)
+                {
+                    if (ex is System.ComponentModel.Win32Exception win32Ex && win32Ex.NativeErrorCode == 1223)
+                    {
+                        // User canceled the UAC prompt
+                    }
+                    else
+                    {
+
+                        MessageBox.Show($"Failed to restart as administrator: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("The application is already running with administrator privileges.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        /// <summary>
+        /// Checks if the current user has administrator privileges.
+        /// </summary>
+        /// <returns>True if the current user has administrator privileges; otherwise, false.</returns>
+        private static bool IsAdministrator()
+        {
+            using var identity = System.Security.Principal.WindowsIdentity.GetCurrent();
+            var principal = new System.Security.Principal.WindowsPrincipal(identity);
+            return principal.IsInRole(System.Security.Principal.WindowsBuiltInRole.Administrator);
+        }
+
+        /// <summary>
+        /// Handles the click event for the "Help" menu item. Opens the help documentation or displays a message box with help information.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
+        private void ToolStripMenuItem_help_Click(object sender, EventArgs e)
+        {
+            // Call the VerboseForm with "help" mode to display help information
+            VerboseForm helpForm = new("help");
+            helpForm.Show();
         }
     }
 }
