@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(VerboseForm));
             richTextBox_verbose = new RichTextBox();
             SuspendLayout();
             // 
@@ -46,8 +47,9 @@
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
             Controls.Add(richTextBox_verbose);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "VerboseForm";
-            Text = "VerboseForm";
+            Text = "Win32-Content-Prep-Tool-GUI - Logs";
             ResumeLayout(false);
         }
 
