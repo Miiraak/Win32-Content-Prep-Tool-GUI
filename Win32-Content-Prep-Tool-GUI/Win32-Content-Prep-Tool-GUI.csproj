@@ -11,6 +11,7 @@
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <Copyright>Copyright (c) 2026 Miiraak</Copyright>
     <AssemblyTitle>A GUI front-end for IntuneWinAppUtil.exe</AssemblyTitle>
+    <FileVersion>1.1.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

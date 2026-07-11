@@ -44,6 +44,7 @@
                 "-c <source_folder> : Specifies the source folder containing the application files.\n" +
                 "-s <setup_file>    : Specifies the setup file name (main executable or installer).\n" +
                 "-o <output_folder> : Specifies the output folder where the .intunewin file will be created.\n" +
+                "-a <catalog_folder> : Specifies the catalog folder to bundle into the .intunewin file.\n" +
                 "-q                 : Quiet mode, suppresses output messages.\n\n" +
                 "Other Information:\n" +
                 "- Ensure that the source folder contains ONLY all necessary files for the application.\n" +
