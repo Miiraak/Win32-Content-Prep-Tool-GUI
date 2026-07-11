@@ -235,12 +235,13 @@ This project is useful for:
 ## Screenshots
 
 <p align="left">
-  <img src="https://github.com/user-attachments/assets/7ef50a0c-21ca-40a0-8f9d-fbd4bbf586d5" alt="Main window" width="400" />
+  <img src="https://github.com/user-attachments/assets/6fa15a90-338c-41bc-aa92-4af3de6eb28c" alt="Main window" width="400" />
 </p>
 
 <p align="left">
-  <img src="https://github.com/user-attachments/assets/e48a5766-a9f2-4014-91b7-860d58e6a795" alt="Verbose window" width="400" />
+  <img src="https://github.com/user-attachments/assets/c0590d87-eb46-4a5e-aa34-36489f19a325" alt="Verbose window" width="400" />
 </p>
+
 
 ---
 
