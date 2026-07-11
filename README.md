@@ -13,6 +13,7 @@
   <img alt="Platform" src="https://img.shields.io/badge/platform-Windows-0078D6.svg" />
   <img alt="Language" src="https://img.shields.io/badge/language-C%23-239120.svg" />
   <img alt="UI" src="https://img.shields.io/badge/UI-WinForms-6A5ACD.svg" />
+  <img alt="Version" src="https://img.shields.io/badge/version-1.1.0.0-informational.svg" />
 </p>
 
 ---
@@ -35,7 +36,10 @@ The goal is to make Win32 content preparation easier and more accessible for **M
 
 ## Features
 
-- Simple **Windows Forms** interface
+- Simple **Windows Forms** interface with a custom application icon
+- Menu bar with:
+  - **Run as Administrator** — restarts the application with elevated (UAC) privileges
+  - **Help** — opens an integrated help window
 - File picker for Win32 installers:
   - `.exe`
   - `.msi`
@@ -44,10 +48,13 @@ The goal is to make Win32 content preparation easier and more accessible for **M
 - Verbose mode with a dedicated output window
 - One-click conversion to `.intunewin`
 - Copy generated command-line arguments to clipboard
+- GitHub repository link directly in the main window
 - Automatic handling of `IntuneWinAppUtil.exe`
-  - downloads it if missing
+  - stored in a dedicated subfolder of the user temp directory (`%TEMP%\Win32-Content-Prep-Tool-GUI\`)
+  - downloads it if missing (with user confirmation)
   - can refresh it if the local copy is older than 1 day
   - verifies the downloaded binary with a SHA-256 hash before use
+  - deletes an existing `.intunewin` output file before re-packaging (prevents process freeze in verbose mode)
 
 ---
 
@@ -130,20 +137,23 @@ Depending on the selected options, it may also append:
 Where:
 
 - `-a` includes bundled catalog files
-- `-q` disables verbose output
+- `-q` disables verbose output (quiet mode)
 
 The application runs the tool through PowerShell and, when verbose mode is enabled, streams standard output and error output into a dedicated window.
+
+If a `.intunewin` file with the same name already exists in the output folder, it is automatically deleted before the conversion starts (required to prevent a process freeze in verbose/interactive mode).
 
 ---
 
 ## Automatic Tool Download
 
-When conversion starts, the application checks for `IntuneWinAppUtil.exe` in a temporary folder.
+When conversion starts, the application checks for `IntuneWinAppUtil.exe` in a dedicated temp subfolder (`%TEMP%\Win32-Content-Prep-Tool-GUI\`).
 
-Behavior observed in the current code:
+Behavior:
 
-- if the tool is missing, the app asks whether it should download it
-- if the tool already exists but is older than **1 day**, the app can offer to refresh it
+- if the tool is missing, the app asks whether it should download it; if the user refuses, an error is shown and the process stops
+- if the tool already exists but is older than **1 day**, the app offers to refresh it
+- downloads use a **30-second HTTP timeout**
 - after download, the binary is validated using a **SHA-256 hash**
 - if validation fails, the file is deleted and execution stops
 
@@ -157,17 +167,25 @@ This helps ensure the tool used for packaging is the expected version.
 
 The main window includes:
 
-- installer selection
+- installer file selection
 - output folder selection
 - catalog folder selection
 - bundled catalog toggle
 - verbose toggle
 - conversion button
 - command-line copy button
+- GitHub repository link (opens in the default browser)
+- menu bar:
+  - **Run as Administrator** — requests UAC elevation and restarts the app (silently ignored if the user cancels)
+  - **Help** — opens the integrated help window
 
-### Verbose Form
+### Verbose / Log Form
 
-A separate verbose window is used to display process output when verbose mode is enabled.
+A secondary window used to display live process output when verbose mode is enabled.
+
+### Help Form
+
+The same secondary window, opened in help mode from the menu, showing usage instructions and `IntuneWinAppUtil.exe` command-line reference.
 
 ---
 
@@ -184,7 +202,9 @@ A separate verbose window is used to display process output when verbose mode is
     ├── main.Designer.cs
     ├── main.resx
     ├── VerboseForm.cs
+    ├── VerboseForm.Designer.cs
     ├── VerboseForm.resx
+    ├── icon.ico
     ├── Win32-Content-Prep-Tool-GUI.csproj
     └── Properties/
         ├── Resources.Designer.cs
