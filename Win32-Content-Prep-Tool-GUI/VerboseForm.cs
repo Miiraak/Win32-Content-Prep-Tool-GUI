@@ -2,7 +2,7 @@
 {
     public partial class VerboseForm : Form
     {
-        // Use a private readonly field to store the mode (verbose or help) for the form.
+        // Use a private readonly field to store the mode (log or help) for the form.
         private readonly string mode;
         public VerboseForm(string mode = "log")
         {

@@ -15,7 +15,7 @@ namespace Win32_Content_Prep_Tool_GUI
             if (IsAdministrator())
             {
                 // change the title of the form to indicate that it is running as administrator
-                this.Text = "Win32 Content Prep Tool GUI (Administrator)";
+                this.Text = "Win32-Content-Prep-Tool-GUI (Administrator)";
             }
         }
 
@@ -349,7 +349,15 @@ namespace Win32_Content_Prep_Tool_GUI
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Failed to restart as administrator: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    if (ex is System.ComponentModel.Win32Exception win32Ex && win32Ex.NativeErrorCode == 1223)
+                    {
+                        // User canceled the UAC prompt
+                    }
+                    else
+                    {
+
+                        MessageBox.Show($"Failed to restart as administrator: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
             }
             else
